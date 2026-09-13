@@ -21,5 +21,6 @@ Config/roxygen2/version: 8.1.0
 Depends: 
     R (>= 3.5)
 LazyData: true
-URL: https://github.com/msmithson975/cdfquant01reg
+URL: https://github.com/msmithson975/cdfquant01reg, https://msmithson975.github.io/cdfquant01reg/
 BugReports: https://github.com/msmithson975/cdfquant01reg/issues
+VignetteBuilder: knitr
