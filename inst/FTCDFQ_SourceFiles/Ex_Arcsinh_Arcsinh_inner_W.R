@@ -39,7 +39,7 @@ Utransf <- function(x, sigma){
 Uinv <- function(x, sigma){
   return (x*sigma)}
 
-# density function
+# density functions
 dnsity <- function(x, mu, sigma, u){
   if(x==0){
     return (Arcsinhf(Utransf(Wtransf(InvArcsinhf(u/(2*u+1)),mu),sigma)))}
@@ -47,6 +47,15 @@ dnsity <- function(x, mu, sigma, u){
     return (1 - Arcsinhf(Utransf(Wtransf(InvArcsinhf((u+1)/(2*u+1)),mu),sigma)))}
   else{
     return ((Arcsinhf(Utransf(Wtransf(InvArcsinhf((u+x)/(2*u+1)+0.000001),mu),sigma)) - Arcsinhf(Utransf(Wtransf(InvArcsinhf((u+x)/(2*u+1)),mu),sigma)))/(0.000001*(2*u + 1)))}
+}
+
+dnsity2 <- function(x, mu, sigma, u){
+  dens <- numeric(length(x))
+  dens[x == 0] <- Arcsinhf(Utransf(Wtransf(InvArcsinhf(u[x == 0]/(2*u[x == 0]+1)),mu[x == 0]),sigma[x == 0]))
+  dens[x == 1] <- 1 - Arcsinhf(Utransf(Wtransf(InvArcsinhf((u[x == 1]+1)/(2*u[x == 1]+1)),mu[x == 1]),sigma[x == 1]))
+  idx <- (x > 0 & x < 1)
+  dens[idx] <- (Arcsinhf(Utransf(Wtransf(InvArcsinhf((u[idx]+x[idx])/(2*u[idx]+1)+0.000001),mu[idx]),sigma[idx])) - Arcsinhf(Utransf(Wtransf(InvArcsinhf((u[idx]+x[idx])/(2*u[idx]+1)),mu[idx]),sigma[idx])))/(0.000001*(2*u[idx] + 1))
+  return(dens)
 }
 
 CDF <- function(x, mu, sigma, u){

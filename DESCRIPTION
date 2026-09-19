@@ -1,16 +1,18 @@
 Package: cdfquant01reg
-Title: Finite-Tailed CDF-Quantile Distributions for BRMS
-Version: 0.1.0
+Title: Finite-Tailed CDF-Quantile Distributions for BRMS and Maximum Likelihood Estimation
+Version: 0.2.0
+Date: 2026-09-19
 Authors@R: 
     person("Michael", "Smithson", , "michael.smithson@gmail.com", role = c("aut", "cre"))
-Description: The cdfquant01reg package is a wrapper for running finite-tail CDF-quantile distribution models in BRMS.  It includes the 32 original distributions and their 16 extended-support counterparts.
+Description: The cdfquant01reg package is a wrapper for running finite-tail CDF-quantile distribution models in BRMS and with maximum likelihood estimation.  It includes the 32 original distributions and their 16 extended-support counterparts.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports: 
     brms (>= 2.21.0),
     utils,
-    pkgload
+    pkgload,
+    Formula
 Suggests: 
     cmdstanr (>= 0.8.0),
     knitr,

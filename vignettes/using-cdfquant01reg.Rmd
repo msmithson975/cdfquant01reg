@@ -93,7 +93,7 @@ The data are records of 894 patients whose times were recorded for five stages o
 
 ```{r, eval = FALSE}
 # Run the model
-m2 <- ftcdfq(bf(pphysdecis ~ Ambulance, sigma ~ Ambulance), data=yoon, backend = "cmdstanr")
+m2 <- ftcdfq(bf(pphysdecis ~ Ambulance, sigma ~ Ambulance), data=yoon, backend = "cmdstanr", silent = 2)
 # Get the model summary
 summary(m2)
 # Get the model log-likelihood:
@@ -165,7 +165,7 @@ This example first executes an intercepts model using the selected distribution 
 ```{r, eval = FALSE}
 data(blame)
 # Run the model
-m3 <- exftcdfq(bf(ptotpalest1 ~ 1, sigma ~ 1, u ~ 1), data= blame)
+m3 <- exftcdfq(bf(ptotpalest1 ~ 1, sigma ~ 1, u ~ 1), data= blame, silent = 2)
 # Get the model summary
 summary(m3)
 # Get the model log-likelihood:
@@ -192,7 +192,7 @@ Two experimental conditions varied whether the Palestinians were listed as one p
 
 ```{r, eval = FALSE}
 # Run the model
-m4 <- exftcdfq(bf(ptotpalest1 ~ palestpk, sigma ~ 1, u ~ 1), data= blame)
+m4 <- exftcdfq(bf(ptotpalest1 ~ palestpk, sigma ~ 1, u ~ 1), data= blame, silent = 2)
 # Get the model summary
 summary(m4)
 # 
@@ -226,6 +226,22 @@ for (i in 1:length(mydensity)) {mydensity[i] <- dnsity(myseq[i],b0+b1,s0,u0)}
 truehist(blame$ptotpalest1[blame$palestpk == 1], nbins=20, xlab = "ptotpalest1", ylab = "pdf", xlim = c(-u0,1+u0))
 lines(myseq,mydensity, lwd = 2)
 ```
+
+Now let's try the same model with maximum likelihood estimation.  We should find that the results are quite similar to those obtained with Bayesian estimation. 
+
+```{r, eval = FALSE}
+# Run the model
+m4 <- exftcdfqMLE(ptotpalest1 ~ palestpk | 1 | 1, data = blame)
+summary(m4)
+#
+# Get the model estimated medians for the “unpacked” and "packed" conditions
+predict(m4, newdata = c(0, 1))
+#
+# Examine the parameter estimate correlation matrix:
+parameter_cor(m4)
+#
+```
+
 
 # References
 

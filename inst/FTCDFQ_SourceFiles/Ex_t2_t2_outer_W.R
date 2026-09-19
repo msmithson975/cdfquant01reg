@@ -44,6 +44,15 @@ dnsity <- function(x, mu, sigma, u){
   return(dex)
   }
 
+dnsity2 <- function(x, mu, sigma, u){
+  dens <- numeric(length(x))
+  dens[x == 0] <- T2f(Wtransf(Utransf(InvT2vec(u[x == 0]/(2*u[x == 0]+1)),sigma[x == 0]),mu[x == 0]))
+  dens[x == 1] <- 1 - T2f(Wtransf(Utransf(InvT2vec((u[x == 1]+1)/(2*u[x == 1]+1)),sigma[x == 1]),mu[x == 1]))
+  idx <- (x > 0 & x < 1)
+  dens[idx] <- (T2f(Wtransf(Utransf(InvT2vec((u[idx]+x[idx])/(2*u[idx]+1) + 0.000001),sigma[idx]),mu[idx])) - T2f(Wtransf(Utransf(InvT2vec((u[idx]+x[idx])/(2*u[idx]+1)),sigma[idx]),mu[idx])))/(0.000001*(2*u[idx] + 1))
+  return(dens)
+}
+
 CDF <- function(x, mu, sigma, u){
   ifelse(x < -u,0, ifelse(x > 1+u,1, T2f(Wtransf(Utransf(InvT2vec((u+x)/(2*u+1)),sigma),mu))))}
 

@@ -4,7 +4,7 @@
 \alias{ftcdfq}
 \title{Fit an FTCDFQ Model using brms}
 \usage{
-ftcdfq(formula, data, backend = "cmdstanr", ...)
+ftcdfq(formula, data, backend = "cmdstanr", silent = 2, ...)
 }
 \arguments{
 \item{formula}{A brms formula object.}
@@ -12,6 +12,8 @@ ftcdfq(formula, data, backend = "cmdstanr", ...)
 \item{data}{A data frame containing the variables in the model.}
 
 \item{backend}{The backend engine to use for compilation (defaults to "cmdstanr").}
+
+\item{silent}{A number controlling the warnings output from stan.}
 
 \item{...}{Additional arguments passed to brms::brm.}
 }

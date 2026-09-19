@@ -49,6 +49,15 @@ dnsity <- function(x, mu, sigma, u){
     return ((Vtransf(Cauchyf(Utransf(InvArcsinhf((u+x)/(2*u+1) + 0.000001),sigma)),mu) - Vtransf(Cauchyf(Utransf(InvArcsinhf((u+x)/(2*u+1)),sigma)),mu))/(0.000001*(2*u + 1)))}
 }
 
+dnsity2 <- function(x, mu, sigma, u){
+  dens <- numeric(length(x))
+  dens[x == 0] <- Vtransf(Cauchyf(Utransf(InvArcsinhf(u[x == 0]/(2*u[x == 0]+1)),sigma[x == 0])),mu[x == 0])
+  dens[x == 1] <- 1 - Vtransf(Cauchyf(Utransf(InvArcsinhf((u[x == 1]+1)/(2*u[x == 1]+1)),sigma[x == 1])),mu[x == 1])
+  idx <- (x > 0 & x < 1)
+  dens[idx] <- (Vtransf(Cauchyf(Utransf(InvArcsinhf((u[idx]+x[idx])/(2*u[idx]+1) + 0.000001),sigma[idx])),mu[idx]) - Vtransf(Cauchyf(Utransf(InvArcsinhf((u[idx]+x[idx])/(2*u[idx]+1)),sigma[idx])),mu[idx]))/(0.000001*(2*u[idx] + 1))
+  return(dens)
+}
+
 CDF <- function(x, mu, sigma, u){
   ifelse(x < -u,0, ifelse(x > 1+u,1, Vtransf(Cauchyf(Utransf(InvArcsinhf((u+x)/(2*u+1)),sigma)),mu)))}
 

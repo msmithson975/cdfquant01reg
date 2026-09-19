@@ -61,7 +61,7 @@
 select_ftcdfq <- function() {
   choice_index <- menu(
     choices = names(.model_ftcdfq),
-    title = "Choose a BRMS model to load into the session:"
+    title = "Choose a distribution to load into the session:"
   )
   # Process the user's choice
   if (choice_index > 0) {
@@ -100,7 +100,7 @@ select_ftcdfq <- function() {
 select_exftcdfq <- function() {
   choice_index <- menu(
     choices = names(.model_exftcdfq),
-    title = "Choose a BRMS model to load into the session:"
+    title = "Choose a distribution to load into the session:"
   )
 
   # Process the user's choice

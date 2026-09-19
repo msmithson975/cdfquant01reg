@@ -21,3 +21,19 @@
 #' }
 #' @source Halevy, N., Maoz, I., Vani, P. and Reit, E.S., 2022. Where the blame lies: Unpacking groups into their constituent subgroups shifts judgments of blame in intergroup conflict. Psychological Science, 33(1), pp.76-89.
 "blame"
+
+#' Gun Ownership Data Set
+#'
+#' The data for this example are from a 2015 survey of 321 American voters conducted by Smithson.  Participants were asked to assign a number representing their feeling about gun ownership from 0 (very negative) to 100 (very positive).  They were also asked to choose their political affiliation from four categories: Democrat, Republican, independent, and no preference.
+#'
+#' @format A data frame with these columns:
+#' \describe{
+#'   \item{poliorient}{Political affiliation by assignment to one of four categories}
+#'   \item{demo}{A binary variable, coded 1 = Democrat, 0 = any other category}
+#'   \item{indep}{A binary variable, coded 1 = independent, 0 = any other category}
+#'   \item{nopref}{A binary variable, coded 1 = no preference, 0 = any other category}
+#'   \item{repub}{A binary variable, coded 1 = Republican, 0 = any other category}
+#'   \item{gun01}{A numeric variable, linearly transformed from the 0-100 range to 0-1}
+#' }
+#' @source Smithson, M. 2015. Unpublished dataset.
+"gunown"
