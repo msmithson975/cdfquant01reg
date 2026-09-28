@@ -52,6 +52,15 @@ dnsity <- function(x, mu, sigma){
   return(dex)
 }
 
+dnsity2 <- function(x, mu, sigma){
+  dens <- numeric(length(x))
+  dens[x == 0] <- sigma[x == 0]^2*exp(mu[x == 0])
+  dens[x == 1] <- sigma[x == 1]^2*exp(-mu[x == 1])
+  idx <- (x > 0 & x < 1)
+  dens[idx] <- (T2f(Wtransf(Utransf(InvT2vec(x[idx] + 0.000001),sigma[idx]),mu[idx])) - T2f(Wtransf(Utransf(InvT2vec(x[idx]),sigma[idx]),mu[idx])))/0.000001
+  return(dens)
+}
+
 inverse_CDF <- function(x, mu, sigma){
   return(T2f(Uinv(Winv(InvT2f(x),sigma),mu)))
 }

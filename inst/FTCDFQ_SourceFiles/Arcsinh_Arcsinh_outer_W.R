@@ -59,6 +59,15 @@ dnsity <- function(x, mu, sigma){
     return ((Arcsinhf(Wtransf(Utransf(InvArcsinhf(x + 0.000001),sigma),mu)) - Arcsinhf(Wtransf(Utransf(InvArcsinhf(x),sigma),mu)))/0.000001)}
 }
 
+dnsity2 <- function(x, mu, sigma){
+  dens <- numeric(length(x))
+  dens[x == 0] <- sigma[x == 0]*exp(mu[x == 0])
+  dens[x == 1] <- sigma[x == 1]*exp(-mu[x == 1])
+  idx <- (x > 0 & x < 1)
+  dens[idx] <- (Arcsinhf(Wtransf(Utransf(InvArcsinhf(x[idx] + 0.000001),sigma[idx]),mu[idx])) - Arcsinhf(Wtransf(Utransf(InvArcsinhf(x[idx]),sigma[idx]),mu[idx])))/0.000001
+  return(dens)
+}
+
 # Quantile function
 inverse_CDF <- function(x, mu, sigma){
   return(Arcsinhf(Uinv(Winv(InvArcsinhf(x),mu),sigma)))

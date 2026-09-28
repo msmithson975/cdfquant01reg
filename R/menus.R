@@ -1,5 +1,5 @@
-# Define the exact mapping of ftcdfq models
-.model_ftcdfq <- c(
+# Define the exact mapping of ftcdfq2 models
+.model_ftcdfq2 <- c(
   "Arcsinh_Arcsinh_outer_W_2" = "FTCDFQ_SourceFiles/Arcsinh_Arcsinh_outer_W.R",
   "Arcsinh_Cauchy_outer_W_2" = "FTCDFQ_SourceFiles/Arcsinh_Cauchy_outer_W.R",
   "Cauchit_Arcsinh_outer_W_2" = "FTCDFQ_SourceFiles/Cauchit_Arcsinh_outer_W.R",
@@ -15,7 +15,11 @@
   "Arcsinh_Cauchy_inner_V_2" = "FTCDFQ_SourceFiles/Arcsinh_Cauchy_inner_V.R",
   "Cauchit_Arcsinh_inner_V_2" = "FTCDFQ_SourceFiles/Cauchit_Arcsinh_inner_V.R",
   "Cauchit_Cauchy_inner_V_2" = "FTCDFQ_SourceFiles/Cauchit_Cauchy_inner_V.R",
-  "t2_t2_inner_V_2" = "FTCDFQ_SourceFiles/t2_t2_inner_V.R",
+  "t2_t2_inner_V_2" = "FTCDFQ_SourceFiles/t2_t2_inner_V.R"
+)
+#
+# Define the exact mapping of ftcdfq3 models
+.model_ftcdfq3 <- c(
   "Arcsinh_Arcsinh_outer_W_3" = "FTCDFQ_SourceFiles/Arcsinh_Arcsinh_outer_W_3.R",
   "Arcsinh_Cauchy_outer_W_3" = "FTCDFQ_SourceFiles/Arcsinh_Cauchy_outer_W_3.R",
   "Cauchit_Arcsinh_outer_W_3" = "FTCDFQ_SourceFiles/Cauchit_Arcsinh_outer_W_3.R",
@@ -54,19 +58,19 @@
   "Ex_t2_t2_inner_V" = "FTCDFQ_SourceFiles/Ex_t2_t2_inner_V.R"
 )
 #
-# The interactive ftcdfq selection function
-#' Select a standard FTCDFQ distribution
+# The interactive ftcdfq2 selection function
+#' Select a standard FTCDFQ 2-parameter distribution
 #' @importFrom utils menu
 #' @export
-select_ftcdfq <- function() {
+select_ftcdfq2 <- function() {
   choice_index <- menu(
-    choices = names(.model_ftcdfq),
+    choices = names(.model_ftcdfq2),
     title = "Choose a distribution to load into the session:"
   )
   # Process the user's choice
   if (choice_index > 0) {
     # Dynamically find the file inside the package's installed system path
-    rel_path <- .model_ftcdfq[choice_index]
+    rel_path <- .model_ftcdfq2[choice_index]
     # 1. Handle development mode (devtools::load_all())
     # package_file checks your raw source directory directly
     if (requireNamespace("pkgload", quietly = TRUE) && pkgload::is_dev_package("cdfquant01reg")) {
@@ -83,7 +87,46 @@ select_ftcdfq <- function() {
         attachNamespace("brms")
       }
       source(chosen_file, local = .GlobalEnv)
-      message(sprintf("\n--> Successfully loaded: %s", names(.model_ftcdfq)[choice_index]))
+      message(sprintf("\n--> Successfully loaded: %s", names(.model_ftcdfq2)[choice_index]))
+      message("The shared and unique Stan functions are now active.")
+    } else {
+      warning(sprintf("Requested file could not be found. Inspected path: %s", chosen_file))
+    }
+  } else {
+    message("Selection cancelled. No model loaded.")
+  }
+}
+#
+# The interactive ftcdfq3 selection function
+#' Select a standard FTCDFQ 3-parameter distribution
+#' @importFrom utils menu
+#' @export
+select_ftcdfq3 <- function() {
+  choice_index <- menu(
+    choices = names(.model_ftcdfq3),
+    title = "Choose a distribution to load into the session:"
+  )
+  # Process the user's choice
+  if (choice_index > 0) {
+    # Dynamically find the file inside the package's installed system path
+    rel_path <- .model_ftcdfq3[choice_index]
+    # 1. Handle development mode (devtools::load_all())
+    # package_file checks your raw source directory directly
+    if (requireNamespace("pkgload", quietly = TRUE) && pkgload::is_dev_package("cdfquant01reg")) {
+      chosen_file <- pkgload::package_file("inst", rel_path)
+    } else {
+      # 2. Handle normal installed mode for users
+      chosen_file <- system.file(rel_path, package = "cdfquant01reg")
+    }
+
+    # 3. Source the file if found
+    if (nzchar(chosen_file) && file.exists(chosen_file)) {
+      # CRITICAL FIX: Explicitly attach brms so sourced files can see custom_family()
+      if (!"package:brms" %in% search()) {
+        attachNamespace("brms")
+      }
+      source(chosen_file, local = .GlobalEnv)
+      message(sprintf("\n--> Successfully loaded: %s", names(.model_ftcdfq3)[choice_index]))
       message("The shared and unique Stan functions are now active.")
     } else {
       warning(sprintf("Requested file could not be found. Inspected path: %s", chosen_file))

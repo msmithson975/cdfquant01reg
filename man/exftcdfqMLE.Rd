@@ -24,7 +24,7 @@ exftcdfqMLE(formula, data, start = NULL)
 \arguments{
 \item{formula}{A three-part formula separated by pipes (\code{|}),
 where the first part specifies predictors
-for mu (median), the second for sigma (dispersion), and the third for u (shape).}
+for mu (skew and location), the second for sigma (dispersion), and the third for u (exceedance).}
 
 \item{data}{A data frame containing the variables specified in the formula.}
 
