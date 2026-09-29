@@ -1,8 +1,9 @@
 # cdfquant01reg
 
-The cdfquant01reg package implements Bayesian regression with the
-finite-tailed CDF-quantile (FTCDFQ) distributions (Smithson & Shou,
-2024) and their extended-support versions in the BRMS package in R.
+The cdfquant01reg package implements Bayesian regression in the BRMS
+package and maximum-likelihood regression with the finite-tailed
+CDF-quantile (FTCDFQ) distributions (Smithson & Shou, 2024) and their
+extended-support versions in R.
 
 ## Installation
 
@@ -19,7 +20,7 @@ install.packages("cmdstanr", repos = c('https://r-universe.dev', getOption("repo
 cmdstanr::install_cmdstan(overwrite = TRUE)
 
 # 3. Install cdfquant01reg from source (or GitHub)
-# install.packages("path/to/cdfquant01reg_0.1.0.tar.gz", repos = NULL, type = "source")
+# install.packages("path/to/cdfquant01reg_0.2.0.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Quick Start Workflow
@@ -60,6 +61,7 @@ functions as in this example, which uses the yoon dataset:
 
 ``` r
 
+data(yoon)
 myfit <- ftcdfq(
   formula = bf(pphysdecis ~ 1, sigma ~ 1), 
   data = yoon, 

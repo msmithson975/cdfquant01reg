@@ -7,36 +7,43 @@ library(cdfquant01reg)
 
 The cdfquant01reg package implements Bayesian regression with the
 finite-tailed CDF-quantile (FTCDFQ) distributions (Smithson & Shou,
-2024) and their extended-support versions in the BRMS package in R.
-
-The package has two families of distributions, the 32 two- and
-three-parameter FTCDFQ distributions, and the 16 extended-support
-distributions based on the two-parameter FTCDFQ distributions. This
-vignette demonstrates the usages of both kinds.
+2024) and their extended-support versions in the BRMS package in R. The
+package has three subfamilies of distributions: the 16 two-parameter
+distributions, the 16 three-parameter distributions, and 16
+extended-support distributions based on the two-parameter FTCDFQ
+distributions.
 
 ## FTCDFQ Regression
 
-There are two commands for executing a regression model, one identifying
-the distribution to be used in the regression model, and the other
-specifying the regression model and the data source. The select_ftcdfq()
-command displays a menu of 32 FTCDFQ distributions and asks for a number
-identifying the distribution chosen by the user.
+There are two kinds of commands for executing a regression model in this
+package, one kind identifying the distribution to be used in the
+regression model, and the other kind specifying the regression model and
+the data source. There is a distribution selection command for each of
+the three subfamilies: select_ftcdfq2, select_ftcdfq3, and
+select_exftcdfq. Each of them invites the user to select from a menu of
+16 distributions.
 
 ``` r
 
 # Run the interactive menu selection
-select_ftcdfq()
+select_ftcdfq2()
 ```
 
-The function will print out the 32 standard distribution options and
-prompt you for a choice:
+For instance, the select_ftcdfq2() command displays a menu of the 16
+two-parameter distributions and asks for a number identifying the
+distribution you wish to choose.
 
 ``` text
-Choose a BRMS model to load into the session: 
+Choose a distribution to load into the session: 
 
- 1: Arcsinh_Arcsinh_outer_W_2   2: Arcsinh_Cauchy_outer_W_2    3: Cauchit_Arcsinh_outer_W_2
-...
-31: Cauchit_Cauchy_inner_V_3   32: t2_t2_inner_V_3
+ 1: Arcsinh_Arcsinh_outer_W_2   2: Arcsinh_Cauchy_outer_W_2 
+ 3: Cauchit_Arcsinh_outer_W_2   4: Cauchit_Cauchy_outer_W_2 
+ 5: t2_t2_outer_W_2             6: Cauchit_Arcsinh_outer_V_2
+ 7: Cauchit_Cauchy_outer_V_2    8: t2_t2_outer_V_2          
+ 9: Arcsinh_Arcsinh_inner_W_2  10: Arcsinh_Cauchy_inner_W_2 
+11: Cauchit_Cauchy_inner_W_2   12: t2_t2_inner_W_2          
+13: Arcsinh_Cauchy_inner_V_2   14: Cauchit_Arcsinh_inner_V_2
+15: Cauchit_Cauchy_inner_V_2   16: t2_t2_inner_V_2
 
 Selection: 
 ```
@@ -46,23 +53,35 @@ registered automatically, and you will see a message like this one:
 
 ``` text
 Selection: 3
---> --> Successfully loaded: Cauchit_Arcsinh_outer_W_2
+--> Successfully loaded: Cauchit_Arcsinh_outer_W_2
 The shared and unique Stan functions are now active.
 ```
 
 The package handles the BRMS custom family and stanvars automatically,
 so the ftcdfq command for running a model needs only a BRMS formula and
 data source, although other BRMS control parameters can be added as well
-(e.g., the number of chains). This example executes an intercepts model
-using a two-parameter distribution for the dependent variable pphysdecis
-from a dataset named “yoon” (Example 3 from Smithson and Shou, 2024, see
-below for a description of the dataset).
+(e.g., the number of chains). The same is true for a model using maximum
+likelihood estimation and frequentist inference.
+
+This example begins with an intercepts model using a two-parameter
+distribution for the dependent variable pphysdecis from a dataset named
+“yoon” (Example 3 from Smithson and Shou, 2024). The data are records of
+894 patients whose times were recorded for five stages of ED assessment
+and treatment from a study consisting of recorded information on
+patients admitted to the emergency department of the University of
+Alberta Hospital between midnight January 23 and midnight January 29,
+1999 (Yoon, Steiner, and Reinhardt 2003). The variable pphysdecis is the
+proportion of the patient’s time in the emergency department consisting
+of consultation with or treatment by a physician.
+
+We begin by fitting the two-parameter Cauchit_Arcsinh_outer_W_2 to the
+pphysdecis distribution, using BRMS.
 
 ``` r
 
 data(yoon)
 # Run the model
-m1 <- ftcdfq(bf(pphysdecis ~ 1, sigma ~ 1), data=yoon, backend = "cmdstanr")
+m1 <- ftcdfq(bf(pphysdecis ~ 1, sigma ~ 1), data=yoon, backend = "cmdstanr", silent = 1)
 # Get the model summary
 summary(m1)
 ```
@@ -81,14 +100,17 @@ b0 <- fixef(m1)["Intercept", "Estimate"]
 s0 <- exp(fixef(m1)["sigma_Intercept", "Estimate"])
 # Compute the estimated median:
 inverse_CDF(0.5,b0,s0)
-# Compare it with the sample median:
+# Alternatively, 
+pred1 <- posterior_predict(m1)
+median(pred1)
+# Compare them with the sample median:
 median(yoon$pphysdecis)
 # Inspect the CDF values for 0.25, 0.5, and 0.75 on the pphysdecis scale:
 c(CDF(0.25,b0,s0),CDF(0.5,b0,s0),CDF(0.75,b0,s0))
 ```
 
-These commands use the dnsity function to plot the fitted distribution
-against a normed histogram of the data.
+The next group of commands uses the dnsity function to plot the fitted
+distribution against a normed histogram of the data.
 
 ``` r
 
@@ -101,42 +123,65 @@ truehist(yoon$pphysdecis, nbins=50, xlab = "pphysdecis", ylab = "pdf")
 lines(myseq,mydensity, lwd = 2)
 ```
 
-### Example 3 from Smithson and Shou (2024)
+Now we run the same model using frequentist methods. The commands
+ftcdfqMLE2 and ftcdfqMLE3 run maximum likelihood regression models for
+the two-parameter and three-parameter distributions, respectively. These
+return objects that use S3 methods for extracting coefficients and
+summary statistics.
 
-The data are records of 894 patients whose times were recorded for five
-stages of ED assessment and treatment from a study consisting of
-recorded information on patients admitted to the emergency department of
-the University of Alberta Hospital between midnight January 23 and
-midnight January 29, 1999 (Yoon, Steiner, and Reinhardt 2003). Smithson
-and Shou used a Cauchit-Cauchy outer-W two-parameter distribution to
-assess the difference in the proportion of time spent in treatment
-(versus registration and triage) between patients arriving by ambulance
-and those who were “walk-ins”. The code here tests their hypothesis that
-ambulance-arrivals spent more time under treatment by a physician, using
-the Cauchit-Arcsinh outer-W distribution that already has been employed
-for this vignette.
+Given that the BRMS model used the default priors, the
+maximum-likelihood model produces quite similar results.
 
 ``` r
 
 # Run the model
-m2 <- ftcdfq(bf(pphysdecis ~ Ambulance, sigma ~ Ambulance), data=yoon, backend = "cmdstanr")
+m1b <- ftcdfqMLE2(pphysdecis ~ 1|1, data=yoon)
+# Get the model summary
+summary(m1b)
+# Compute the estimated median:
+mean(predict(m1b))
+# Compare it with the BRMS estimated median:
+median(pred1)
+#
+```
+
+### Example 3 from Smithson and Shou (2024)
+
+Smithson and Shou used a Cauchit-Cauchy outer-W two-parameter
+distribution to assess the difference in the proportion of time spent in
+treatment (versus registration and triage) between patients arriving by
+ambulance and those who were “walk-ins”. The code here tests their
+hypothesis that ambulance-arrivals spent more time under treatment by a
+physician, using the Cauchit-Arcsinh outer-W two-parameter distribution
+we have employed thus far.
+
+``` r
+
+# Run the model
+m2 <- ftcdfq(bf(pphysdecis ~ Ambulance, sigma ~ Ambulance), data=yoon, backend = "cmdstanr", silent = 1)
 # Get the model summary
 summary(m2)
 # Get the model log-likelihood:
-LL1 <- log_lik(m1)
-sum(colMeans(LL1))
+LL2 <- log_lik(m2)
+sum(colMeans(LL2))
 # 
 # Get the model estimated medians for the Walk-ins
 b0 <- fixef(m2)["Intercept", "Estimate"]
-s0 <- exp(fixef(m2)["sigma_Intercept", "Estimate"])
-inverse_CDF(0.5,b0,s0)
+s0 <- fixef(m2)["sigma_Intercept", "Estimate"]
+inverse_CDF(0.5,b0,exp(s0))
+# Alternatively, 
+ambo <- data.frame(Ambulance = c(0,1))
+pred2 <- posterior_predict(m2, newdata = ambo)
+median(pred2[,1])
 # Compare it with the sample median:
 median(yoon$pphysdecis[yoon$Ambulance==0])
 #
 # And for the Ambulance Arrivals:
 b1 <- fixef(m2)["Ambulance", "Estimate"]
-s1 <- exp(fixef(m2)["sigma_Ambulance", "Estimate"])
-inverse_CDF(0.5,b0+b1,s0+s1)
+s1 <- fixef(m2)["sigma_Ambulance", "Estimate"]
+inverse_CDF(0.5,b0+b1,exp(s0+s1))
+# Alternatively, 
+median(pred2[,2])
 # Compare it with the sample median:
 median(yoon$pphysdecis[yoon$Ambulance==1])
 ```
@@ -157,6 +202,23 @@ lines(myseq,mydensity, lwd = 2)
 for (i in 1:length(mydensity)) {mydensity[i] <- dnsity(myseq[i],b0+b1,s0+s1)}
 truehist(yoon$pphysdecis[yoon$Ambulance == 1], nbins=50, xlab = "pphysdecis", ylab = "pdf")
 lines(myseq,mydensity, lwd = 2)
+```
+
+As before, we run a maximum likelihood model for comparison with the
+BRMS regression. Again, it produces quite similar results to the BRMS
+model.
+
+``` r
+
+# Run the model
+m2b <- ftcdfqMLE2(pphysdecis ~ Ambulance|Ambulance, data=yoon)
+# Get the model summary
+summary(m2b)
+# Get the model estimated medians for the Ambulancw arrivals and Walk-ins
+predict(m2b, newdata = c(0, 1))
+# Compare it with the BRMS estimated medians:
+c(median(pred2[,1]),median(pred2[,2]))
+#
 ```
 
 ## Extended-Support Regression
@@ -209,7 +271,7 @@ to handle the zeros and ones in the data.
 
 data(blame)
 # Run the model
-m3 <- exftcdfq(bf(ptotpalest1 ~ 1, sigma ~ 1, u ~ 1), data= blame)
+m3 <- exftcdfq(bf(ptotpalest1 ~ 1, sigma ~ 1, u ~ 1), data= blame, backend = "cmdstanr", silent = 1)
 # Get the model summary
 summary(m3)
 # Get the model log-likelihood:
@@ -217,10 +279,13 @@ LL3 <- log_lik(m3)
 sum(colMeans(LL3))
 #
 # model distribution’s median:
-b0 <- fixef(m1)["Intercept", "Estimate"]
-s0 <- exp(fixef(m1)["sigma_Intercept", "Estimate"])
-u0 <- exp(fixef(m1)["u_Intercept", "Estimate"])
+b0 <- fixef(m3)["Intercept", "Estimate"]
+s0 <- exp(fixef(m3)["sigma_Intercept", "Estimate"])
+u0 <- exp(fixef(m3)["u_Intercept", "Estimate"])
 inverse_CDF(0.5,b0,s0,u0)
+# Alternatively,
+pred3 <- posterior_predict(m3)
+median(pred3)
 # Compare the estimate with the empirical median:
 median(blame$ptotpalest1)
 # 
@@ -258,7 +323,7 @@ than the packed condition.
 ``` r
 
 # Run the model
-m4 <- exftcdfq(bf(ptotpalest1 ~ palestpk, sigma ~ 1, u ~ 1), data= blame)
+m4 <- exftcdfq(bf(ptotpalest1 ~ palestpk, sigma ~ 1, u ~ 1), data= blame, backend = "cmdstanr", silent = 1)
 # Get the model summary
 summary(m4)
 # 
@@ -267,16 +332,22 @@ LL4 <- log_lik(m4)
 sum(colMeans(LL4))
 #
 # Get the model estimated medians for the “unpacked” condition
-b0 <- fixef(m2)["Intercept", "Estimate"]
-s0 <- exp(fixef(m2)["sigma_Intercept", "Estimate"])
-u0 <- exp(fixef(m2)["u_Intercept", "Estimate"])
+b0 <- fixef(m4)["Intercept", "Estimate"]
+s0 <- exp(fixef(m4)["sigma_Intercept", "Estimate"])
+u0 <- exp(fixef(m4)["u_Intercept", "Estimate"])
 inverse_CDF(0.5,b0,s0,u0)
+# Alternatively, 
+pkunpk <- data.frame(palestpk = c(0,1))
+pred4 <- posterior_predict(m4, newdata = pkunpk)
+median(pred4[,1])
 # Compare the estimate with the empirical median:
 median(blame$ptotpalest1[blame$palestpk==0])
 #
 # And for the “packed” condition:
-b1 <- fixef(m2)["palestpk", "Estimate"]
+b1 <- fixef(m4)["palestpk", "Estimate"]
 inverse_CDF(0.5,b0+b1,s0,u0)
+# Alternatively,
+median(pred4[,2])
 # Compare the estimate with the empirical median:
 median(blame$ptotpalest1[blame$palestpk==1])
 # 
@@ -291,6 +362,24 @@ lines(myseq,mydensity, lwd = 2)
 for (i in 1:length(mydensity)) {mydensity[i] <- dnsity(myseq[i],b0+b1,s0,u0)}
 truehist(blame$ptotpalest1[blame$palestpk == 1], nbins=20, xlab = "ptotpalest1", ylab = "pdf", xlim = c(-u0,1+u0))
 lines(myseq,mydensity, lwd = 2)
+```
+
+Now let’s try the same model with maximum likelihood estimation. We find
+that the results are quite similar to those obtained with Bayesian
+estimation.
+
+``` r
+
+# Run the model
+m4b <- exftcdfqMLE(ptotpalest1 ~ palestpk | 1 | 1, data = blame)
+summary(m4b)
+#
+# Get the model estimated medians for the “unpacked” and "packed" conditions
+predict(m4b, newdata = c(0, 1))
+#
+# Examine the parameter estimate correlation matrix:
+parameter_cor(m4b)
+#
 ```
 
 ## References

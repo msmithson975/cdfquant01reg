@@ -5,7 +5,7 @@ Fit an FTCDFQ Model using brms
 ## Usage
 
 ``` r
-ftcdfq(formula, data, backend = "cmdstanr", ...)
+ftcdfq(formula, data, backend = "cmdstanr", silent = 2, ...)
 ```
 
 ## Arguments
@@ -21,6 +21,10 @@ ftcdfq(formula, data, backend = "cmdstanr", ...)
 - backend:
 
   The backend engine to use for compilation (defaults to "cmdstanr").
+
+- silent:
+
+  A number controlling the warnings output from stan.
 
 - ...:
 
